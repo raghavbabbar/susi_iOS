@@ -12,11 +12,17 @@ import M13Checkbox
 import RealmSwift
 import SwiftValidators
 
-extension LoginViewController {
+extension LoginViewController: UITextFieldDelegate {
 
     func addTapGesture() {
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tap)
+    }
+    
+    func setupView() {
+        skipButton.titleColor = .white
+        forgotPassword.titleColor = .white
+        signUpButton.titleColor = .white
     }
 
     // Configures Email Text Field
@@ -65,6 +71,12 @@ extension LoginViewController {
                 self.present(self.alert, animated: true, completion: nil)
             }
         }
+    }
+    
+    //Declare delegates
+    func addDelegates() {
+        emailTextField.delegate = self
+        passwordTextField.delegate = self
     }
 
     @IBAction func toggleRadioButtons(_ sender: M13Checkbox) {
@@ -206,13 +218,16 @@ extension LoginViewController {
 
     // Keyboard Return Key Hit
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField == emailTextField {
-            _ = passwordTextField.becomeFirstResponder()
-        } else if textField == passwordTextField {
+        switch textField {
+        case emailTextField:
+            _ =  passwordTextField.becomeFirstResponder()
+        case passwordTextField:
             dismissKeyboard()
             performLogin()
+        default:
+            textField.resignFirstResponder()
         }
-        return false
+        return true
     }
 
     @objc func textFieldDidChange(textField: UITextField) {
@@ -247,14 +262,6 @@ extension LoginViewController {
         passwordTextField.text = ""
     }
 
-    // Show sign up controller
-    func presentSignUpController() {
-        clearFields()
-
-        UserDefaults.standard.setValue(emailTextField.text, forKey: ControllerConstants.UserDefaultsKeys.typedEmailAdress)
-        let vc = SignUpViewController()
-        present(vc, animated: true, completion: nil)
-    }
 
     // Validate fields
     func isValid() -> Bool {

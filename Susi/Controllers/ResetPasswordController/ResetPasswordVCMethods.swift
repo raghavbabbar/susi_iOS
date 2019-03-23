@@ -24,6 +24,12 @@ extension ResetPasswordViewController {
             navbar.barTintColor = UIColor.defaultColor()
         }
     }
+    //declare delegate
+    func addDelegates() {
+        currentPasswordField.delegate = self
+        newPasswordField.delegate = self
+        confirmPasswordField.delegate = self
+    }
 
     func validatePassword() -> [Bool: String] {
         if let newPassword = newPasswordField.text,
@@ -59,7 +65,7 @@ extension ResetPasswordViewController {
             let _ = checkValidity.values.first,
             let appDelegate = UIApplication.shared.delegate as? AppDelegate,
             let user = appDelegate.currentUser,
-            isValid && isActive {
+            isValid && !isActive {
             setUIActive(active: true)
             let params = [
                 Client.UserKeys.AccessToken: user.accessToken,
@@ -87,5 +93,17 @@ extension ResetPasswordViewController {
         currentPasswordField.text = ""
         confirmPasswordField.text = ""
     }
-
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        switch textField {
+        case currentPasswordField:
+            newPasswordField.becomeFirstResponder()
+        case newPasswordField:
+            confirmPasswordField.becomeFirstResponder()
+        default:
+            textField.resignFirstResponder()
+        }
+        return true
+    }
+    
 }
